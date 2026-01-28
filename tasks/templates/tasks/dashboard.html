@@ -1,0 +1,25 @@
+<h1>Dashboard</h1>
+
+<h2>Mis Proyectos</h2>
+<ul>
+    {% for project in owned_projects %}
+        <li>
+            <strong>{{ project.title }}</strong>
+            — {{ project.done_tasks }} / {{ project.total_tasks }} tareas completadas
+        </li>
+    {% empty %}
+        <li>No tienes proyectos propios.</li>
+    {% endfor %}
+</ul>
+
+<h2>Colaboraciones</h2>
+<ul>
+    {% for project in collaborated_projects %}
+        <li>
+            <strong>{{ project.title }}</strong>
+            — {{ project.done_tasks }} / {{ project.total_tasks }} tareas completadas
+        </li>
+    {% empty %}
+        <li>No colaboras en ningún proyecto.</li>
+    {% endfor %}
+</ul>
