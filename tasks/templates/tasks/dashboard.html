@@ -4,7 +4,7 @@
 <ul>
     {% for project in owned_projects %}
         <li>
-            <strong>{{ project.title }}</strong>
+            <a href="{% url 'tasks:project_detail' project.pk %}"> {{ project.title }} </a>
             — {{ project.done_tasks }} / {{ project.total_tasks }} tareas completadas
         </li>
     {% empty %}

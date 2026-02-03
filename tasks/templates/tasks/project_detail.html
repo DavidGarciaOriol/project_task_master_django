@@ -9,3 +9,47 @@
 <p>
     <strong>Owner:</strong> {{ object.owner.username }}
 </p>
+
+<h2>Tareas</h2>
+
+<ul>
+    {% for task in object.tasks.all %}
+        <li>
+            {{ task.title }} — {{ task.get_status_display }}
+            |
+            <a href="{% url 'tasks:task_status_update' task.pk %}">
+                Cambiar estado
+            </a>
+        </li>
+    {% empty %}
+        <li>No hay tareas.</li>
+    {% endfor %}
+</ul>
+
+<h2>Estado de las tareas</h2>
+
+<canvas id="tasksChart" width="300" height="300"></canvas>
+
+<script>
+    const ctx = document.getElementById('tasksChart');
+
+    new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: ['Completadas', 'Pendientes'],
+            datasets: [{
+                data: [
+                    {{ done_tasks }},
+                    {{ pending_tasks }}
+                ],
+                backgroundColor: [
+                    '#4CAF50',
+                    '#FFC107'
+                ]
+            }]
+        }
+    });
+</script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
