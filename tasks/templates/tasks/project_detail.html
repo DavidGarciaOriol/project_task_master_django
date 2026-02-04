@@ -12,19 +12,28 @@
 
 <h2>Tareas</h2>
 
+<h3> <a href="{% url 'tasks:task_create' object.pk %}">
+    + Nueva tarea
+</a> </h3>
+
 <ul>
-    {% for task in object.tasks.all %}
+    {% for task in tasks %}
         <li>
-            {{ task.title }} — {{ task.get_status_display }}
-            |
+            {{ task.title }} - {{ task.get_status_display }}
+
+            <a href="{% url 'tasks:task_update' task.pk %}">
+                Editar
+            </a>
+             | 
             <a href="{% url 'tasks:task_status_update' task.pk %}">
                 Cambiar estado
             </a>
         </li>
     {% empty %}
-        <li>No hay tareas.</li>
+        <li>No hay tareas</li>
     {% endfor %}
 </ul>
+
 
 <h2>Estado de las tareas</h2>
 

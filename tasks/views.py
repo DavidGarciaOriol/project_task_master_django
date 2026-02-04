@@ -5,11 +5,15 @@ from django.db.models import Count, Q
 from django.views.generic import DetailView
 from django.views.generic import UpdateView
 from django.urls import reverse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
+from django.views.generic import CreateView
+from django.urls import reverse
+from django.views.generic import UpdateView
 
 from .mixins import ProjectAccessMixin
 from .models import Project
 from .models import Project, Task
+
 
 
 
@@ -65,16 +69,11 @@ class ProjectDetailView(ProjectAccessMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        project = self.object
+        project = self.get_object()
+        
+        tasks = project.tasks.order_by("title") # type: ignore
 
-        total_tasks = project.tasks.count()
-        done_tasks = project.tasks.filter(
-            status=Task.Status.DONE
-        ).count()
-
-        context['total_tasks'] = total_tasks
-        context['done_tasks'] = done_tasks
-        context['pending_tasks'] = total_tasks - done_tasks
+        context["tasks"] = tasks
 
         return context
 
@@ -94,3 +93,35 @@ class TaskStatusUpdateView(ProjectAccessMixin, UpdateView):
             'tasks:project_detail',
             args=[self.project.pk]
         )
+        
+### CRUD VIEWS ###
+       
+class TaskCreateView(ProjectAccessMixin, CreateView):
+    model = Task
+    fields = ["title", "description", "status"]
+
+    def form_valid(self, form):
+        project = Project.objects.get(pk=self.kwargs["project_pk"])
+        form.instance.project = project
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse("tasks:project_detail", args=[self.object.project.pk]) # type: ignore
+
+class TaskUpdateView(ProjectAccessMixin, UpdateView):
+    model = Task
+    fields = ["title", "description", "status"]
+
+    def get_success_url(self):
+        return reverse("tasks:project_detail", args=[self.object.project.pk]) # type: ignore
+    
+def toggle_task_status(request, pk):
+    task = get_object_or_404(Task, pk=pk)
+
+    if task.status == Task.Status.DONE:
+        task.status = Task.Status.IN_PROGRESS
+    else:
+        task.status = Task.Status.DONE
+
+    task.save()
+    return redirect("tasks:project_detail", task.project.pk)
